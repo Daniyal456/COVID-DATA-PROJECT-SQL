@@ -91,7 +91,8 @@ select *
 from dbo.view_a
 
 
--- QUEREY FOR TABLEAU # 1--
+-- VIEW FOR TABLEAU # 1--DEATH RATE
+GO
 CREATE VIEW death_rate AS
 Select continent,location,SUM(new_cases) as total_cases, SUM(cast(new_deaths as bigint)) as total_deaths, SUM(cast(new_deaths as bigint))/SUM(New_Cases)*100 as DeathPercentage
 From [Portfolio Project _1]..['covid deaths$']
@@ -99,8 +100,28 @@ From [Portfolio Project _1]..['covid deaths$']
 Where location is not null and continent is not null and location not in ('World', 'European Union', 'International')
 Group By continent, location
 --order by 1,2
+
+--VIEW FOR TABLEAU # 2 -- PERCENT POPULATION DEAD
+GO
+CREATE VIEW percent_population_dead AS
+SELECT location,continent, population, SUM(cast(new_deaths as bigint)) as total_deaths, (SUM(cast(new_deaths as bigint))/population)*100 AS p_p_dead
+from [Portfolio Project _1]..['covid deaths$']
+where location is not null and continent is not null and location not in ('World', 'European Union', 'International')
+group by location,continent,population
+
+
+----VIEW FOR TABLEAU # 3 -- INFECTION RATE
+GO
+CREATE VIEW infection_rate AS
+SELECT date,location,continent, SUM(new_cases)/population as percent_population_infected
+from [Portfolio Project _1]..['covid deaths$']
+where location is not null and continent is not null and location not in ('World', 'European Union', 'International')
+group by location,continent,population,date
+
+select *
+from percent_population_dead
  
- -- VIEW FOR TABLEAU # 2--
+ -- VIEW FOR TABLEAU # 4-- DEATH COUNT
  GO
  CREATE VIEW death_count AS
  Select location, continent,SUM(cast(new_deaths as bigint)) as TotalDeathCount
@@ -110,7 +131,7 @@ Where location is not null and continent is not null and location not in ('World
 Group by location,continent
 --order by TotalDeathCount desc
 
--- QUERY FOR TABLEAU # 3--
+-- QUERY FOR TABLEAU # 5-- PERCENT POPULATION INFECTED
 GO
 CREATE VIEW infection_count_p_p_infected AS
 Select Continent,Location, Population, SUM(total_cases) as InfectionCount,  Max((total_cases/population))*100 as PercentPopulationInfected
@@ -121,3 +142,5 @@ Group by Location, Continent, Population
 select *
 from infection_count_p_p_infected
 order by continent
+
+--END OF QUERY--
